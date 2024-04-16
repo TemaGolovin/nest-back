@@ -15,6 +15,7 @@ export class ReviewModel {
 
   @Prop({ required: true })
   rating: number;
+
 }
 
 export const ReviewSchema = SchemaFactory.createForClass(ReviewModel)
