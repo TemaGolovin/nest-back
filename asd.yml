@@ -1,0 +1,2333 @@
+openapi: 3.0.0
+info:
+  title: "API"
+  version: "1.0.0"
+  description: |
+    * Документ содержит описание методов, необходимых для фичи "Сметы"
+    * Мэппинг функциональностей на запросы отражен в карте запросов: <https://docs.google.com/spreadsheets/d/1z56AFrMUZsMx5ROAXca2cgoCoCOxAB0KGqYgEjYHO7c/edit?usp=sharing>
+    * Описание в таблице функциональности: <https://docs.google.com/spreadsheets/d/1uLGi-38BTilw45kQhlz8XWN0csDgoz8qM-kB9lWKft8/edit?usp=sharing>
+
+servers:
+  - url: https://bro.petrovich.ru/rest
+    description: Петрович.БРО PROD
+  - url: http://prorab_dev.diablo-web.ru/rest
+    description: Петрович.БРО DEV
+
+security:
+  - XApiId: []
+  - PetAuthToken: []
+    PetDid: []
+    PetSessionId: []
+
+tags:
+  - name: Estimate
+  - name: Estimate Mobile
+
+paths:
+  /estimates:
+    get:
+      tags:
+        - Estimate
+      summary: Список смет пользователя
+      description: Список смет пользователя, включая сметы, где пользователь
+        является клиентом или работником
+      responses:
+        '200':
+          description: Список успешно передан
+          content:
+            application/json:
+              schema:
+                $ref: 'models.yaml#/components/schemas/EstimatesList'
+        '401':
+          description: Пользователь не авторизован
+          content:
+            text/plain:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/UnauthorizedResponse'
+        '500':
+          description: Ошибка на сервере
+          content:
+            text/html:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/ServerErrorResponse'
+
+    put:
+      tags:
+        - Estimate
+      summary: Создание новой сметы
+      requestBody:
+        description: Тело запроса
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: 'models.yaml#/components/schemas/NewEstimate'
+      responses:
+        '200':
+          description: Смета успешно создана
+          content:
+            application/json:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/EstimateCreatedSuccessfulResponse'
+        '400':
+          description: Ошибки в данных
+          content:
+            application/json:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/EstimateValidationErrorResponse'
+        '401':
+          description: Пользователь не авторизован
+          content:
+            text/plain:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/UnauthorizedResponse'
+        '500':
+          description: Ошибка на сервере
+          content:
+            text/html:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/ServerErrorResponse'
+
+  /estimates/{id}:
+    patch:
+      tags:
+        - Estimate
+      summary: Обновление сметы
+      parameters:
+        - $ref: "models.yaml#/components/parameters/EstimateId"
+      requestBody:
+        description: Тело запроса
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: 'models.yaml#/components/schemas/NewEstimate'
+      responses:
+        '200':
+          description: Смета успешно обновлена
+          content:
+            application/json:
+              schema:
+                $ref: "../common/models.yaml#/components/schemas/SuccessResponse"
+        '401':
+          description: Пользователь не авторизован
+          content:
+            text/plain:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/UnauthorizedResponse'
+        '500':
+          description: Ошибка на сервере
+          content:
+            text/html:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/ServerErrorResponse'
+
+    delete:
+      tags:
+        - Estimate
+      summary: Удаление сметы
+      parameters:
+        - $ref: "models.yaml#/components/parameters/EstimateId"
+      responses:
+        '200':
+          description: Смета успешно удалена
+          content:
+            application/json:
+              schema:
+                $ref: "../common/models.yaml#/components/schemas/SuccessResponse"
+        '401':
+          description: Пользователь не авторизован
+          content:
+            text/plain:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/UnauthorizedResponse'
+        '500':
+          description: Ошибка на сервере
+          content:
+            text/html:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/ServerErrorResponse'
+
+  /estimates/{id}/mobile:
+    get:
+      tags:
+        - Estimate Mobile
+      summary: Информация об одной смете для мобильного приложения
+      parameters:
+        - $ref: 'models.yaml#/components/parameters/EstimateId'
+      responses:
+        '200':
+          description: Информация об одной смете
+          content:
+            application/json:
+              schema:
+                $ref: 'models.yaml#/components/schemas/EstimateMobile'
+        '401':
+          description: Пользователь не авторизован
+          content:
+            text/plain:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/UnauthorizedResponse'
+        '500':
+          description: Ошибка на сервере
+          content:
+            text/html:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/ServerErrorResponse'
+    patch:
+      tags:
+        - Estimate Mobile
+      summary: Обновление информации о смете и блоках первого уровня
+      parameters:
+        - $ref: 'models.yaml#/components/parameters/EstimateId'
+      requestBody:
+        description: Тело запроса
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: 'models.yaml#/components/schemas/UpdatedEstimateMobile'
+      responses:
+        '200':
+          description: Информация по смете успешно обновлена
+          content:
+            application/json:
+              schema:
+                $ref: "../common/models.yaml#/components/schemas/SuccessResponse"
+        '401':
+          description: Пользователь не авторизован
+          content:
+            text/plain:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/UnauthorizedResponse'
+        '500':
+          description: Ошибка на сервере
+          content:
+            text/html:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/ServerErrorResponse'
+
+  /estimates/{id}/mobile/{row_id}:
+    get:
+      tags:
+        - Estimate Mobile
+      summary: Информация о блоках сметы
+      description: |
+        Блоки могут состоять из type:
+        - товаров (product)
+        - работ (service)
+        - блоков (section)
+      parameters:
+        - $ref: 'models.yaml#/components/parameters/EstimateId'
+        - name: row_id
+          in: path
+          required: true
+          description: id блока/секции сметы
+          schema:
+            type: string
+          example: eb68fbcb-c792-2dd7-66ec-c9dd20561d95
+      responses:
+        '200':
+          description: Информация о вложенности сметы (товару/работе/секции)
+          content:
+            application/json:
+              schema:
+                $ref: 'models.yaml#/components/schemas/EstimateMobileRow'
+        '401':
+          description: Пользователь не авторизован
+          content:
+            text/plain:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/UnauthorizedResponse'
+        '500':
+          description: Ошибка на сервере
+          content:
+            text/html:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/ServerErrorResponse'
+
+    patch:
+      tags:
+        - Estimate Mobile
+      summary: Обновление информации о блоке сметы
+      description: |
+        - Обновление может включать в себя как обновление самого блока, так и его состовляющих
+        - Блоки могут состоять из type:
+          - товаров (product)
+          - работ (service)
+          - блоков (section)
+      parameters:
+        - $ref: 'models.yaml#/components/parameters/EstimateId'
+        - name: row_id
+          in: path
+          required: true
+          description: id блока/секции сметы
+          schema:
+            type: string
+          example: eb68fbcb-c792-2dd7-66ec-c9dd20561d95
+      requestBody:
+        description: Тело запроса
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: 'models.yaml#/components/schemas/UpdatedEstimate'
+      responses:
+        '200':
+          description: Информация по смете успешно обновлена
+          content:
+            application/json:
+              schema:
+                $ref: "../common/models.yaml#/components/schemas/SuccessResponse"
+        '401':
+          description: Пользователь не авторизован
+          content:
+            text/plain:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/UnauthorizedResponse'
+        '500':
+          description: Ошибка на сервере
+          content:
+            text/html:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/ServerErrorResponse'
+
+  /estimates/{id}/project:
+    patch:
+      tags:
+        - Estimate
+      summary: Изменение объекта у сметы
+      parameters:
+        - $ref: 'models.yaml#/components/parameters/EstimateId'
+      requestBody:
+        description: Тело запроса
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: 'models.yaml#/components/schemas/ProjectUpdateRequest'
+      responses:
+        '200':
+          description: Объект успешно изменен
+          content:
+            application/json:
+              schema:
+                $ref: "../common/models.yaml#/components/schemas/SuccessResponse"
+        '400':
+          description: Ошибки в данных
+          content:
+            application/json:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/ErrorsInDataResponse'
+        '401':
+          description: Пользователь не авторизован
+          content:
+            text/plain:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/UnauthorizedResponse'
+        '500':
+          description: Ошибка на сервере
+          content:
+            text/html:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/ServerErrorResponse'
+
+  /estimates/{id}/status:
+    patch:
+      tags:
+        - Estimate
+      summary: Изменение статуса у сметы
+      parameters:
+        - $ref: 'models.yaml#/components/parameters/EstimateId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: 'models.yaml#/components/schemas/StatusChangeRequest'
+      responses:
+        '200':
+          description: Статус успешно изменен
+          content:
+            application/json:
+              schema:
+                $ref: "../common/models.yaml#/components/schemas/SuccessResponse"
+        '400':
+          description: Ошибки в данных
+          content:
+            application/json:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/EstimateStatusUpdateError'
+        '401':
+          description: Пользователь не авторизован
+          content:
+            text/plain:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/UnauthorizedResponse'
+        '500':
+          description: Ошибка на сервере
+          content:
+            text/html:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/ServerErrorResponse'
+
+  /estimates/{id}/pdf:
+    get:
+      tags:
+        - Estimate
+      summary: Экспорт сметы в PDF
+      parameters:
+        - $ref: 'models.yaml#/components/parameters/EstimateId'
+      responses:
+        '200':
+          description: Смета успешно экспортирована
+          content:
+            application/pdf:
+              schema:
+                $ref: 'models.yaml#/components/schemas/FileResponse'
+        '401':
+          description: Пользователь не авторизован
+          content:
+            text/plain:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/UnauthorizedResponse'
+        '500':
+          description: Ошибка на сервере
+          content:
+            text/html:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/ServerErrorResponse'
+
+  /estimates/{id}/pdf/email:
+    get:
+      tags:
+        - Estimate
+      summary: Отправление сметы в PDF на электронную почту пользователя
+      parameters:
+        - $ref: 'models.yaml#/components/parameters/EstimateId'
+      responses:
+        '200':
+          description: Смета успешно отправлена
+          content:
+            application/json:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/SuccessResponse'
+        '401':
+          description: Пользователь не авторизован
+          content:
+            text/plain:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/UnauthorizedResponse'
+        '500':
+          description: Ошибка на сервере
+          content:
+            text/html:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/ServerErrorResponse'
+
+  /estimates/{id}/pdf/email/custom:
+    post:
+      tags:
+        - Estimate
+      summary: Отправление сметы в PDF, заданной в параметрах, на электронную почту
+      parameters:
+        - $ref: 'models.yaml#/components/parameters/EstimateId'
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: 'models.yaml#/components/schemas/EmailAttachmentsRequest'
+      responses:
+        '200':
+          description: Смета успешно отправлена
+          content:
+            application/json:
+              schema:
+                $ref: "../common/models.yaml#/components/schemas/SuccessResponse"
+        '400':
+          description: Ошибки в данных
+          content:
+            application/json:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/ErrorsInDataResponse'
+        '401':
+          description: Пользователь не авторизован
+          content:
+            text/plain:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/UnauthorizedResponse'
+        '500':
+          description: Ошибка на сервере
+          content:
+            text/html:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/ServerErrorResponse'
+
+  /estimates/{id}/excel/email:
+    get:
+      tags:
+        - Estimate
+      summary: Отправление сметы в Excel на электронную почту пользователя
+      parameters:
+        - $ref: 'models.yaml#/components/parameters/EstimateId'
+      responses:
+        '200':
+          description: Смета успешно отправлена
+          content:
+            application/json:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/SuccessResponse'
+        '401':
+          description: Пользователь не авторизован
+          content:
+            text/plain:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/UnauthorizedResponse'
+        '404':
+          description: Не найдено
+        '500':
+          description: Ошибка на сервере
+          content:
+            text/html:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/ServerErrorResponse'
+
+  /estimates/{id}/excel:
+    get:
+      tags:
+        - Estimate
+      summary: Экспорт сметы в Excel
+      parameters:
+        - $ref: 'models.yaml#/components/parameters/EstimateId'
+      responses:
+        '200':
+          description: Смета успешно экспортирована
+          content:
+            application/excel:
+              schema:
+                $ref: 'models.yaml#/components/schemas/FileResponse'
+        '401':
+          description: Пользователь не авторизован
+          content:
+            text/plain:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/UnauthorizedResponse'
+        '500':
+          description: Ошибка на сервере
+          content:
+            text/html:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/ServerErrorResponse'
+
+  /estimates/{id}/excel/email/custom:
+    post:
+      tags:
+        - Estimate
+      summary: Отправление сметы в Excel, заданной в параметрах, на электронную почту
+      parameters:
+        - $ref: 'models.yaml#/components/parameters/EstimateId'
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: 'models.yaml#/components/schemas/EmailAttachmentsRequest'
+      responses:
+        '200':
+          description: Смета успешно отправлена
+          content:
+            application/json:
+              schema:
+                $ref: "../common/models.yaml#/components/schemas/SuccessResponse"
+        '400':
+          description: Ошибки в данных
+          content:
+            application/json:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/ErrorsInDataResponse'
+        '401':
+          description: Пользователь не авторизован
+          content:
+            text/plain:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/UnauthorizedResponse'
+        '500':
+          description: Ошибка на сервере
+          content:
+            text/html:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/ServerErrorResponse'
+
+  /estimates/archive:
+    get:
+      tags:
+        - Estimate
+      summary: Список архивных смет пользователя
+      description: Список архивных смет пользователя, включая сметы, где
+        пользователь является клиентом или работником
+      responses:
+        '200':
+          description: Список успешно получен
+          content:
+            application/json:
+              schema:
+                $ref: "models.yaml#/components/schemas/EstimatesList"
+        '401':
+          description: Пользователь не авторизован
+          content:
+            text/plain:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/UnauthorizedResponse'
+        '500':
+          description: Ошибка на сервере
+          content:
+            text/html:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/ServerErrorResponse'
+
+  /estimates/archive/{id}:
+    put:
+      tags:
+        - Estimate
+      summary: Добавление сметы в архив (архивирование)
+      parameters:
+        - $ref: 'models.yaml#/components/parameters/EstimateId'
+      responses:
+        '200':
+          description: Смета успешно заархивирована
+          content:
+            application/json:
+              schema:
+                $ref: "../common/models.yaml#/components/schemas/SuccessResponse"
+        '401':
+          description: Пользователь не авторизован
+          content:
+            text/plain:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/UnauthorizedResponse'
+        '404':
+          description: Смета уже архивирована или не найдена
+        '500':
+          description: Ошибка на сервере
+          content:
+            text/html:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/ServerErrorResponse'
+
+    delete:
+      tags:
+        - Estimate
+      summary: Удаление сметы из архива
+      parameters:
+        - $ref: 'models.yaml#/components/parameters/EstimateId'
+      responses:
+        '200':
+          description: Смета успешно удалена
+          content:
+            application/json:
+              schema:
+                $ref: "../common/models.yaml#/components/schemas/SuccessResponse"
+        '404':
+          description: Смета не найдена
+        '401':
+          description: Пользователь не авторизован
+          content:
+            text/plain:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/UnauthorizedResponse'
+        '500':
+          description: Ошибка на сервере
+          content:
+            text/html:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/ServerErrorResponse'
+
+  /estimates/nonarchive:
+    get:
+      tags:
+        - Estimate
+      summary: Список неархивных смет пользователя
+      description: Список неархивных смет пользователя, включая сметы,
+        где пользователь является клиентом или работником
+      responses:
+        '200':
+          description: Список успешно передан
+          content:
+            application/json:
+              schema:
+                $ref: "models.yaml#/components/schemas/EstimatesList"
+        '401':
+          description: Пользователь не авторизован
+          content:
+            text/plain:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/UnauthorizedResponse'
+        '500':
+          description: Ошибка на сервере
+          content:
+            text/html:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/ServerErrorResponse'
+
+  /estimates/{id}/clone:
+    post:
+      tags:
+        - Estimate
+      summary: Клонирование сметы
+      description: Выполняет клонирование исходной сметы в указанный объект с новым названием
+      parameters:
+        - $ref: 'models.yaml#/components/parameters/EstimateId'
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: 'models.yaml#/components/schemas/EstimateCloneParams'
+      responses:
+        '200':
+          description: Смета успешно копирована
+          content:
+            application/json:
+              schema:
+                $ref: "models.yaml#/components/schemas/EstimateCloneResult"
+        '401':
+          description: Пользователь не авторизован
+          content:
+            text/plain:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/UnauthorizedResponse'
+        '500':
+          description: Ошибка на сервере
+          content:
+            text/html:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/ServerErrorResponse'
+
+  /estimates/{id}/attachments:
+    put:
+      tags:
+        - Estimate
+      summary: Создание нового вложения для сметы
+      parameters:
+        - $ref: 'models.yaml#/components/parameters/EstimateId'
+      requestBody:
+        description: Тело запроса
+        required: true
+        content:
+          # т.к. это formData, со стороны разработки использовать `CyrillicFormData` генератор
+          # данных для запроса, не использовать сегенерированный запрос. то есть описывать самому.
+          # пример можно посмотреть из запроса на обновление профиля.
+          multipart/form-data:
+            schema:
+              $ref: "models.yaml#/components/schemas/NewAttachmentSeparate"
+      responses:
+        '200':
+          description: Вложение для сметы успешно создано
+          content:
+            application/json:
+              schema:
+                $ref: "../common/models.yaml#/components/schemas/Response"
+        '401':
+          description: Пользователь не авторизован
+          content:
+            text/plain:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/UnauthorizedResponse'
+        '500':
+          description: Ошибка на сервере
+          content:
+            text/html:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/ServerErrorResponse'
+    delete:
+      tags:
+        - Estimate
+      summary: Удаление вложений сметы
+      parameters:
+        - $ref: 'models.yaml#/components/parameters/EstimateId'
+      requestBody:
+        description: Тело запроса
+        required: true
+        content:
+          # т.к. это formData, со стороны разработки использовать `CyrillicFormData` генератор
+          # данных для запроса, не использовать сегенерированный запрос. то есть описывать самому.
+          # пример можно посмотреть из запроса на обновление профиля.
+          multipart/form-data:
+            schema:
+              $ref: "models.yaml#/components/schemas/DeleteAttachmentsRequest"
+      responses:
+        '200':
+          description: Вложения для сметы успешно удалены
+          content:
+            application/json:
+              schema:
+                $ref: "../common/models.yaml#/components/schemas/SuccessResponse"
+        '401':
+          description: Пользователь не авторизован
+          content:
+            text/plain:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/UnauthorizedResponse'
+        '500':
+          description: Ошибка на сервере
+          content:
+            text/html:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/ServerErrorResponse'
+
+  /estimates/{id}/attachments/email:
+    post:
+      tags:
+        - Estimate
+      summary: Отправка вложений на почту
+      parameters:
+        - $ref: 'models.yaml#/components/parameters/EstimateId'
+      requestBody:
+        description: Тело запроса
+        required: true
+        content:
+          # т.к. это formData, со стороны разработки использовать `CyrillicFormData` генератор
+          # данных для запроса, не использовать сегенерированный запрос. то есть описывать самому.
+          # пример можно посмотреть из запроса на обновление профиля.
+          multipart/form-data:
+            schema:
+              $ref: "models.yaml#/components/schemas/EmailAttachmentsRequest"
+      responses:
+        '200':
+          description: Вложения успешно отправлены на почту
+          content:
+            application/json:
+              schema:
+                $ref: "../common/models.yaml#/components/schemas/SuccessResponse"
+        '401':
+          description: Пользователь не авторизован
+          content:
+            text/plain:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/UnauthorizedResponse'
+        '500':
+          description: Ошибка на сервере
+          content:
+            text/html:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/ServerErrorResponse'
+
+  /estimates/{id}/attachments/{attachmentId}:
+    patch:
+      tags:
+        - Estimate
+      summary: Обновление вложения сметы
+      parameters:
+        - $ref: 'models.yaml#/components/parameters/EstimateId'
+        - $ref: 'models.yaml#/components/parameters/EstimateAttachmentId'
+      requestBody:
+        description: Тело запроса
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "models.yaml#/components/schemas/NewAttachmentSeparate"
+      responses:
+        '200':
+          description: Вложение для сметы успешно обновлено
+          content:
+            application/json:
+              schema:
+                $ref: "../common/models.yaml#/components/schemas/Response"
+        '401':
+          description: Пользователь не авторизован
+          content:
+            text/plain:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/UnauthorizedResponse'
+        '500':
+          description: Ошибка на сервере
+          content:
+            text/html:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/ServerErrorResponse'
+    delete:
+      tags:
+        - Estimate
+      summary: Удаление вложения сметы
+      parameters:
+        - $ref: 'models.yaml#/components/parameters/EstimateId'
+        - $ref: 'models.yaml#/components/parameters/EstimateAttachmentId'
+      responses:
+        '200':
+          description: Вложение для сметы успешно удалено
+          content:
+            application/json:
+              schema:
+                $ref: "../common/models.yaml#/components/schemas/SuccessResponse"
+        '401':
+          description: Пользователь не авторизован
+          content:
+            text/plain:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/UnauthorizedResponse'
+        '500':
+          description: Ошибка на сервере
+          content:
+            text/html:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/ServerErrorResponse'
+
+  /estimates/{id}/attachments/{attachmentId}/email:
+    post:
+      tags:
+        - Estimate
+      summary: Отправка вложения на почту
+      parameters:
+        - $ref: 'models.yaml#/components/parameters/EstimateId'
+        - $ref: 'models.yaml#/components/parameters/EstimateAttachmentId'
+      requestBody:
+        description: Тело запроса
+        required: true
+        content:
+          # т.к. это formData, со стороны разработки использовать `CyrillicFormData` генератор
+          # данных для запроса, не использовать сегенерированный запрос. то есть описывать самому.
+          # пример можно посмотреть из запроса на обновление профиля.
+          multipart/form-data:
+            schema:
+              $ref: "models.yaml#/components/schemas/EmailAttachmentRequest"
+      responses:
+        '200':
+          description: Вложения успешно отправлены на почту
+          content:
+            application/json:
+              schema:
+                $ref: "../common/models.yaml#/components/schemas/SuccessResponse"
+        '401':
+          description: Пользователь не авторизован
+          content:
+            text/plain:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/UnauthorizedResponse'
+        '500':
+          description: Ошибка на сервере
+          content:
+            text/html:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/ServerErrorResponse'
+
+  /estimates/{id}/attachments/{attachmentId}/text:
+    get:
+      tags:
+        - Estimate
+      summary: Получить текстовый файл с текстом вложения сметы
+      parameters:
+        - $ref: 'models.yaml#/components/parameters/EstimateId'
+        - $ref: 'models.yaml#/components/parameters/EstimateAttachmentId'
+      responses:
+        '200':
+          description: Файл с текстом вложения сметы
+          content:
+            application/pdf:
+              schema:
+                $ref: 'models.yaml#/components/schemas/FileResponse'
+        '401':
+          description: Пользователь не авторизован
+          content:
+            text/plain:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/UnauthorizedResponse'
+        '500':
+          description: Ошибка на сервере
+          content:
+            text/html:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/ServerErrorResponse'
+
+  /estimates/{id}/share/email/custom:
+    post:
+      tags:
+        - Estimate
+      summary: Отправление ссылки на смету, заданной в параметрах, на электронную почту
+      parameters:
+        - $ref: 'models.yaml#/components/parameters/EstimateId'
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: 'models.yaml#/components/schemas/EmailAttachmentsRequest'
+      responses:
+        '200':
+          description: Смета успешно отправлена
+          content:
+            application/json:
+              schema:
+                $ref: "../common/models.yaml#/components/schemas/SuccessResponse"
+        '400':
+          description: Ошибки в данных
+          content:
+            application/json:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/ErrorsInDataResponse'
+        '401':
+          description: Пользователь не авторизован
+          content:
+            text/plain:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/UnauthorizedResponse'
+        '500':
+          description: Ошибка на сервере
+          content:
+            text/html:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/ServerErrorResponse'
+
+  /api/add_estimate_to_basket/{id}:
+    post:
+      tags:
+        - Estimate
+      summary: Передача товаров из сметы в корзину
+      description: Передача всех или нескольких разделов/товаров сметы в корзину
+        Петровича. Если тело пустое - добавляет все товары сметы в корзину.
+      parameters:
+        - $ref: 'models.yaml#/components/parameters/EstimateId'
+      requestBody:
+        description: Тело запроса
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: 'models.yaml#/components/schemas/AddToBasket'
+      responses:
+        '200':
+          description: Данные успешно удалены
+          content:
+            application/json:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/SuccessResponse'
+        '404':
+          description: Смета не найдена
+          content:
+            text/plain:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/NotFoundResponse'
+        '500':
+          description: Ошибка на сервере
+          content:
+            text/html:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/ServerErrorResponse'
+
+  # Тут речь идет о том, что при добавлении товара в корзину на сайте предлагается отметить их как купленными.
+  # Соответственно при отметке товаров как купленных, перед переходом на сайт Петровича,
+  # отправляется запрос на редактирование сметы и товары помечаются как купленные.
+  /api/new_estimate_to_basket:
+    get:
+      tags:
+        - Estimate
+      summary: Список добавлений товаров из смет в корзину
+      description: |
+        * Список добавлений товаров содержит записи о добавлениях товаров через запрос '/api/add_estimate_to_basket'
+        * Возвращает список добавлений товаров из смет в корзину, которые еще не были отмечены как купленные
+        * Одна смета может иметь несколько добавлений
+      responses:
+        '200':
+          description: Список успешно передан
+          content:
+            application/json:
+              schema:
+                $ref: 'models.yaml#/components/schemas/EstimateInCartList'
+        '401':
+          description: Пользователь не авторизован
+          content:
+            text/plain:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/UnauthorizedResponse'
+        '500':
+          description: Ошибка на сервере
+          content:
+            text/html:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/ServerErrorResponse'
+
+  /api/new_estimate_to_basket/{id}:
+    get:
+      tags:
+        - Estimate
+      summary: Данные по некупленным товарам конкретной сметы
+      description: Возвращает список товаров по конкретной смете, которые были
+        отправлены в корзину, но еще не были отмечены как купленные
+      parameters:
+        - $ref: 'models.yaml#/components/parameters/CartAdditionId'
+      responses:
+        '200':
+          description: Смета успешно передана
+          content:
+            application/json:
+              schema:
+                $ref: 'models.yaml#/components/schemas/EstimateInCartExtended'
+        '401':
+          description: Пользователь не авторизован
+          content:
+            text/plain:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/UnauthorizedResponse'
+        '500':
+          description: Ошибка на сервере
+          content:
+            text/html:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/ServerErrorResponse'
+
+    post:
+      tags:
+        - Estimate
+      summary: Подтверждение покупки по товарам
+      description: Отмечает товары, отправленные из сметы в корзину, как купленные
+      parameters:
+        - $ref: 'models.yaml#/components/parameters/CartAdditionId'
+      requestBody:
+        description: Тело запроса
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: 'models.yaml#/components/schemas/PendingProducts'
+      responses:
+        '200':
+          description: Товар(ы) успешно отмечены как купленные
+          content:
+            application/json:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/SuccessResponse'
+        '404':
+          description: Не найдено
+          content:
+            text/plain:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/NotFoundResponse'
+        '500':
+          description: Ошибка на сервере
+          content:
+            text/html:
+              schema:
+                $ref: '../common/models.yaml#/components/schemas/ServerErrorResponse'
+
+components:
+  securitySchemes:
+    XApiId:
+      type: apiKey
+      in: header
+      name: X-Api-Id
+      description: Идентификатор сессии Петрович
+    PetAuthToken:
+      type: apiKey
+      in: header
+      name: Pet-Auth-Token
+      description: Токен авторизации для мобильного приложения
+    PetDid:
+      type: apiKey
+      in: header
+      name: Pet-Did
+      description: DeviceID для мобильного приложения
+    PetSessionId:
+      type: apiKey
+      in: header
+      name: Pet-Session-Id
+      description: Идентификатор сессии для мобильного приложения
+  parameters:
+    EstimateId:
+      name: id
+      in: path
+      required: true
+      description: ID сметы
+      schema:
+        type: integer
+      example: 14
+    EstimateAttachmentId:
+      name: estimateAttachmentId
+      in: path
+      description: ID приложения сметы
+      required: true
+      schema:
+        type: integer
+      example: 38
+    CartAdditionId:
+      name: id
+      in: path
+      required: true
+      description: ID добавления в корзину
+      schema:
+        type: integer
+      example: 14
+
+
+  schemas:
+    StatusChangeRequest:
+      type: object
+      properties:
+        status:
+          type: integer
+          nullable: false
+          description: |
+            Статус:
+            0 - Новая
+            1 - На согласовании
+            2 - Согласовано
+            3 - В работе
+            4 - Реализована
+            5 - Приостановлена
+          example: 1
+      required:
+        - status
+
+    # TODO(arefimenko): разобраться с структурой и в каком формате вообще приходит ответ.
+    FileResponse:
+      type: object
+      properties:
+        result:
+          type: string
+          format: binary
+
+    ProjectUpdateRequest:
+      type: object
+      properties:
+        project:
+          type: integer
+          nullable: true
+          description: ID объекта
+          example: 1
+      required:
+        - header
+
+    EmailAttachmentsRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          description: Адрес электронной почты
+          example: test@test.com
+        name:
+          type: string
+          description: Имя адресата
+          example: Иванов И.И.
+        estimateAttachmentIds:
+          type: array
+          description: Список ID вложений которые надо отправить на почту
+          items:
+            type: integer
+            description: ID вложения
+            example: 221
+      required:
+        - email
+
+    EmailAttachmentRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          description: Адрес электронной почты
+          example: test@test.com
+        name:
+          type: string
+          description: Имя адресата
+          example: Иванов И.И.
+        attachText:
+          type: boolean
+          description: Приложить текст вложения
+          example: false
+        estimateAttachmentDocumentIds:
+          type: array
+          description: Список ID документов которые надо отправить на почту
+          items:
+            type: integer
+            description: ID документа
+            example: 221
+      required:
+        - email
+
+    DeleteAttachmentsRequest:
+      type: object
+      properties:
+        estimateAttachmentIds:
+          type: array
+          description: Список ID вложений которые надо удалить
+          items:
+            type: integer
+            description: ID вложения
+            example: 221
+
+    EstimateCloneParams:
+      type: object
+      properties:
+        title:
+          type: string
+          description: Название новой сметы
+          example: Название сметы
+        project:
+          type: integer
+          description: Идентификатор объекта
+          example: 1
+      required:
+        - title
+        - project
+
+    EstimateCloneResult:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: ID новой сметы
+          example: 1
+      required:
+        - id
+
+
+    EstimatesList:
+      type: array
+      description: Список смет
+      items:
+        $ref: '#/components/schemas/EstimatePreview'
+
+    EstimatePreview:
+      type: object
+      description: Превью сметы в списке всех смет
+      properties:
+        estimateId:
+          type: integer
+          description: ID сметы
+        parent:
+          type: integer
+          description: ID родителя
+          nullable: true
+        created:
+          type: string
+          pattern: '^\d{2}\.\d{2}\.\d{4}'
+          description: Дата создания сметы
+          example: '11.11.2021'
+        number:
+          type: integer
+          description: Порядковый номер сметы
+          example: 11
+        title:
+          type: string
+          description: Название сметы
+          maxLength: 250
+          example: 'Квартира на Шаболовке'
+        status:
+          type: string
+          description: |
+            Статус сметы:
+            - Новая
+            - На согласовании
+            - Согласовано
+            - В работе
+            - Реализована
+            - Приостановлена
+          example: 'Новая'
+        project:
+          type: integer
+          description: Идентификатор объекта, за которым закреплена смета
+          example: 11
+          nullable: true
+        workers:
+          type: array
+          description: Массив сотрудников, добавленных в смету
+          items:
+            type: integer
+            description: ID работника
+            example: 221
+        productsQty:
+          type: integer
+          description: Количество товаров в смете
+          example: 10
+        servicesQty:
+          type: integer
+          description: Количество работ в смете
+          example: 10
+        hasSchedule:
+          type: boolean
+          description: Флаг наличия календаря для сметы
+          example: true
+        recipients:
+          type: array
+          description: Список получателей, которым рассылалась смета
+          items:
+            $ref: "#/components/schemas/RecipientsList"
+        isExample:
+          type: boolean
+          nullable: false
+          description: Флаг тестовой сметы, которая создается для нового пользователя
+          example: true
+        hideInFinances:
+          type: boolean
+          nullable: false
+          description: Флаг сокрытия сметы в разделе "Финансы"
+          example: true
+        totalPrice:
+          type: number
+          format: float
+          description: |
+            * Общая стоимость сметы
+            * Для работников и клиентов общая стоимость с учетом коэффициента наценки
+          example: 100000
+        productsPrice:
+          type: number
+          format: float
+          description: |
+            * Стоимость товаров в смете
+            * Для работников и клиентов стоимость с учетом коэффициента наценки
+          example: 50000
+        servicesPrice:
+          type: number
+          format: float
+          description: |
+            * Стоимость работ в смете
+            * Для работников и клиентов стоимость с учетом коэффициента наценки
+          example: 50000
+        totalCoeffPrice:
+          type: number
+          format: float
+          description: Общая стоимость сметы с учетом коэффициента наценки (не выводится для работников и клиентов)
+          example: 110000
+          nullable: true
+        productsCoeffPrice:
+          type: number
+          format: float
+          description: Стоимость товаров в смете с учетом коэффициента наценки (не выводится для работников и клиентов)
+          example: 55000
+          nullable: true
+        servicesCoeffPrice:
+          type: number
+          format: float
+          description: Стоимость работ в смете с учетом коэффициента наценки (не выводится для работников и клиентов)
+          example: 55000
+          nullable: true
+        readonly:
+          type: boolean
+          nullable: false
+          description: Флаг режима "только чтение", работники и клиенты не могут редактировать смету
+          example: true
+
+    RecipientsList:
+      type: object
+      properties:
+        email:
+          type: string
+          description: Адрес электронной почты
+          maxLength: 250
+          example: 'test@test.com'
+        name:
+          type: string
+          description: Имя
+          maxLength: 250
+          example: 'Петр Иванович'
+
+    AddToBasket:
+      description: Массивы идентификаторов сущностей сметы, выбранных для покупки на Петрович.ру
+      properties:
+        estimateItemIds:
+          type: array
+          description: Список ID товаров из сметы, из поля estimateItemId
+          items:
+            type: integer
+            example: 578228586
+        sectionIds:
+          type: array
+          description: Список ID разделов сметы
+          items:
+            type: string
+            example: 6d0f9151-9abe-49e8-a109-5fea122e6ec3
+
+
+    NewEstimate:
+      type: object
+      description: Новая сметы
+      properties:
+        title:
+          type: string
+          description: Название сметы
+          maxLength: 250
+          example: 'Квартира на Шаболовке'
+        status:
+          type: integer
+          description: |
+            Статус:
+            0 - Новая
+            1 - На согласовании
+            2 - Согласовано
+            3 - В работе
+            4 - Реализована
+            5 - Приостановлена
+          example: 1
+        project:
+          type: integer
+          description: ID объекта, к которому относится смета (передавать при создании сметы к существующему объекту)
+          nullable: true
+        projectTitle:
+          type: string
+          description: Название объекта (передавать при создании нового объекта)
+          nullable: true
+        projectAddress:
+          type: string
+          description: Адрес объекта (передавать при создании нового объекта)
+          nullable: true
+        projectCoordsLat:
+          type: number
+          format: float
+          description: Координаты объекта - широта (передавать при создании нового объекта)
+          nullable: true
+        projectCoordsLng:
+          type: number
+          format: float
+          description: Координаты объекта - долгота (передавать при создании нового объекта)
+          nullable: true
+        client:
+          type: integer
+          description: ID клиента
+          example: 1
+          nullable: true
+        workers:
+          type: array
+          description: Массив сотрудников, добавленных в смету
+          nullable: true
+          items:
+            type: integer
+            description: ID работника
+            example: 221
+        teams:
+          type: array
+          nullable: true
+          description: Список бригад, добавленных в смету
+          items:
+            type: integer
+            description: ID бригады
+            example: 221
+        address:
+          type: string
+          description: |
+            Адрес.
+            можно не передавать при создании, т.к. на сторое backend будет браться из объекта.
+          maxLength: 250
+          nullable: true
+          example: 'Москва, Красная площадь, 1'
+        coordsLat:
+          type: number
+          format: float
+          description: |
+            Координаты - широта.
+            можно не передавать при создании, т.к. на сторое backend будет браться из объекта.
+          nullable: true
+          example: 13.004512
+        coordsLng:
+          type: number
+          format: float
+          description: |
+            Координаты - долгота.
+            можно не передавать при создании, т.к. на сторое backend будет браться из объекта.
+          nullable: true
+          example: 13.004512
+        cityId:
+          type: string
+          description: ID города
+          example: '5498b6ecf58ec268d4f16c6e744777f4'
+        header:
+          type: integer
+          description: ID шапки сметы
+          example: 1
+          nullable: true
+        footer:
+          type: integer
+          description: ID подвала сметы
+          example: 1
+          nullable: true
+        productsCoeff:
+          type: number
+          format: float
+          description: Коэффициент наценки на продукты
+          example: 1.1
+        servicesCoeff:
+          type: number
+          format: float
+          description: Коэффициент наценки на работы
+          example: 1.1
+        hideInFinances:
+          type: integer
+          description: Флаг сокрытия сметы в разделе "Финансы" (0|1)
+          nullable: true
+          example: 1
+        attachments:
+          type: array
+          description: Список приложений, добавленных в смету
+          nullable: true
+          items:
+            $ref: '#/components/schemas/NewAttachment'
+        rows:
+          type: array
+          description: |
+            * Массив строк сметы, в формате parentUUID -> UUID = {...}
+            * Для строк верхнего уровня ParentUUID = 00000000-0000-0000-0000-000000000000
+          # TODO(arefimenko): проверить схему ответа.
+          items:
+            $ref: "#/components/schemas/EstimateRow"
+
+    NewAttachment:
+      type: object
+      properties:
+        estimateAttachmentId:
+          type: integer
+          nullable: true
+          description: Идентификатор приложения
+          example: 1
+        text:
+          type: string
+          nullable: false
+          description: Текст приложения
+          example: 'Добавил документы для клиента.'
+        documents:
+          type: array
+          items:
+            $ref: '#/components/schemas/NewDocument'
+      required:
+        - text
+
+    NewAttachmentSeparate:
+      type: object
+      properties:
+        text:
+          type: string
+          nullable: false
+          description: Текст приложения
+          example: 'Добавил документы для клиента.'
+        documents:
+          type: array
+          items:
+            $ref: '#/components/schemas/NewDocument'
+      required:
+        - text
+
+    NewDocument:
+      type: object
+      description: Документ в приложении
+      properties:
+        estimateAttachmentDocumentId:
+          type: integer
+          nullable: true
+          description: Идентификатор документа
+          example: 1
+        uploadId:
+          type: string
+          description: UUID загруженного файла загруженного через /rest/upload
+          example: 'eb68fbcb-c792-2dd7-66ec-c9dd20561d95'
+        file:
+          type: string
+          format: binary
+          description: Файл
+
+    EstimateRow:
+      type: object
+      description: Информация по строкам/атрибутам сметы
+      properties:
+        type:
+          type: string
+          description: |
+            Возможные варианты строк:
+            - service
+            - product
+            - section
+        productId:
+          type: string
+          maxLength: 250
+          description: UUID товара Петрович (только для товаров Петрович)
+          example: 'eb68fbcb-c792-2dd7-66ec-c9dd20561d95'
+        serviceId:
+          type: integer
+          description: ID работы в смете
+          example: 1
+        title:
+          type: string
+          maxLength: 250
+          description: Название раздела/товара/работы
+          example: 'Краска для потолка Dulux'
+        price:
+          type: number
+          format: float
+          nullable: false
+          description: Цена (только для товаров и работ)
+          example: 1643.44
+        qty:
+          type: integer
+          description: Количество (только для товаров и работ)
+          example: 1643.44
+        unit:
+          type: string
+          maxLength: 250
+          description: Единица измерения (только для товаров и работ)
+          example: 'шт'
+        actualPrice:
+          type: number
+          format: float
+          description: Актуальная цена (только для товаров и работ)
+          example: 1643.44
+        actualQty:
+          type: integer
+          description: |
+            * Актуальное количество (только для товаров и работ)
+            * При получении принимает значение true/false, при сохранении/редактировании передается 1 или 0
+          example: 1643.44
+        isDone:
+          type: boolean
+          description: Флаг выполнения
+          example: true
+        isPaid:
+          type: boolean
+          description: |
+            * Флаг оплаты
+            * При получении принимает значение true/false, при сохранении/редактировании передается 1 или 0
+          example: false
+
+    EstimateRowExtended:
+      type: object
+      description: Расширенная информация по строкам/атрибутам сметы
+      properties:
+        type:
+          type: string
+          description: |
+            Может принимать значения:
+            - service
+            - product
+            - section
+        estimateItemId:
+          type: integer
+          description: ID строки сметы (только для товаров)
+          example: 1
+        productId:
+          type: string
+          maxLength: 250
+          description: UUID товара Петрович (только для товаров Петрович)
+          example: 'eb68fbcb-c792-2dd7-66ec-c9dd20561d95'
+        serviceId:
+          type: integer
+          description: ID работы в смете
+          example: 1
+        title:
+          type: string
+          maxLength: 250
+          description: Название раздела/товара/работы
+          example: 'Краска для потолка Dulux'
+        price:
+          type: number
+          format: float
+          description: Цена (только для товаров и работ)
+          example: 1643.44
+        qty:
+          type: integer
+          description: Количество (только для товаров и работ)
+          example: 1643.44
+        unit:
+          type: string
+          maxLength: 250
+          description: Единица измерения (только для товаров и работ)
+          example: 'шт'
+        actualPrice:
+          type: number
+          format: float
+          description: Актуальная цена (только для товаров и работ)
+          example: 1643.44
+        actualQty:
+          type: integer
+          description: Актуальное количество (только для товаров и работ)
+          example: 1643.44
+        isDone:
+          type: boolean
+          description: Флаг выполнения
+          example: true
+        isPaid:
+          type: boolean
+          description: Флаг оплаты
+          example: false
+        totalPrice:
+          type: number
+          format: float
+          description: |
+            * Общая стоимость сметы
+            * Для работников и клиентов общая стоимость с учетом коэффициента наценки
+          example: 1643.44
+        totalCoeffPrice:
+          type: number
+          format: float
+          description: Итоговая цена с учетом коэффициента наценки
+          example: 1643.44
+        bought:
+          type: boolean
+          description: Флаг, показывающий куплен ли товар (только для товаров)
+          example: true
+        exists:
+          type: boolean
+          description: Флаг наличия товара (только для товаров Петрович)
+          example: false
+      example:
+        00000000-0000-0000-0000-000000000000:
+          567b610d-55e9-4ff4-927a-25a975bc4c03:
+            type: section
+            title: Раздел
+            isDone: true
+            isPaid: false
+            totalPrice: 100000
+            totalCoeffPrice: 110000
+        567b610d-55e9-4ff4-927a-25a975bc4c03:
+          eb68fbcb-c792-2dd7-66ec-c9dd20561d95:
+            type: product
+            title: Раздел
+            isDone: true
+            isPaid: false
+            totalPrice: 100000
+            totalCoeffPrice: 110000
+
+    EstimateInCartList:
+      type: array
+      description: Cписок добавлений товаров сметы в корзину
+      items:
+        $ref: "#/components/schemas/EstimateInCart"
+
+    EstimateInCart:
+      type: object
+      description: |
+        * Список добавлений товаров сметы в корзину
+        * Товары еще не были отмечены как купленные
+      properties:
+        id:
+          type: integer
+          description: ID записи статистики добавления в корзину
+          example: 1326
+        estimateId:
+          type: integer
+          description: ID сметы
+          example: 38657046
+        estimateTitle:
+          type: string
+          maxLength: 250
+          description: Название сметы
+          example: 'Квартира на Шаболовке'
+        sum:
+          type: number
+          format: float
+          description: Итоговая сумма товаров, добавленных в корзину
+          example: 1643.44
+        productsCount:
+          type: integer
+          description: Количество товаров, отправленных в корзину
+          example: 4
+        created:
+          type: string
+          pattern: '^\d{2}\.\d{2}\.\d{4} \d{2}:\d{2}:\d{2}$'
+          description: Дата добавления товаров смет в корзину
+          example: '11.11.2021 11:11:11'
+
+    EstimateInCartExtended:
+      type: object
+      description: Детальная информация по конкретной смете, отправленной в корзину, товары которой еще не были отмечены как купленные
+      properties:
+        id:
+          type: integer
+          description: ID записи статистики добавления в корзину
+          example: 1326
+        estimateId:
+          type: integer
+          description: ID сметы
+          example: 38657046
+        estimateTitle:
+          type: string
+          maxLength: 250
+          description: Название сметы
+          example: 'Квартира на Шаболовке'
+        sum:
+          type: number
+          format: float
+          description: Итоговая сумма товаров, добавленных в корзину
+          example: 1643.44
+        productsCount:
+          type: integer
+          description: Количество товаров, отправленных в корзину
+          example: 4
+        created:
+          type: string
+          pattern: '^\d{2}\.\d{2}\.\d{4} \d{2}:\d{2}:\d{2}$'
+          description: Дата добавления товаров смет в корзину
+          example: '11.11.2021 11:11:11'
+        estimateItems:
+          type: array
+          description: Список товаров сметы, добавленных в корзину
+          items:
+            $ref: '#/components/schemas/EstimateItem'
+
+    EstimateItem:
+      type: object
+      properties:
+        estimateItemId:
+          type: integer
+          description: ID товара сметы
+          example: 590049426
+        title:
+          type: string
+          maxLength: 250
+          description: Название товара
+          example: 'Краска для потолка Dulux'
+        price:
+          type: number
+          format: float
+          description: Цена товара
+          example: 1643.44
+        qty:
+          type: integer
+          description: Количество
+          example: 1
+        unit:
+          type: string
+          maxLength: 250
+          description: Единица измерения
+          example: 'шт'
+
+    PendingProducts:
+      type: object
+      description: Товары из сметы, отправленные в корзину и ожидающие подтверждения как купленные
+      properties:
+        estimateItems:
+          type: array
+          description: Список ID товаров
+          items:
+            type: integer
+            example: 12345678
+        status:
+          type: integer
+          description: |
+            Флаг отметки как купленный:
+              * 0 - не отмечен
+              * 1 - отмечен
+          example: 1
+
+    EstimateMobile:
+      type: object
+      description: Информация об одной смете
+      properties:
+        estimateId:
+          type: integer
+          nullable: false
+          description: Идентификатор сметы
+        parent:
+          type: integer
+          nullable: true
+          description: Идентификатор родителя сметы
+        number:
+          type: integer
+          maxLength: 250
+          nullable: false
+          description: Порядковый номер сметы в объекте
+          example: 11
+        title:
+          type: string
+          maxLength: 250
+          nullable: false
+          description: Название сметы
+          example: Квартира на Шаболовке
+        status:
+          type: integer
+          nullable: false
+          description: |
+            Статус
+            0 - Новая
+            1 - На согласовании
+            2 - Согласовано
+            3 - В работе
+            4 - Реализована
+            5 - Приостановлена
+          example: 1
+        project:
+          type: integer
+          nullable: true
+          description: Идентификатор объекта
+          example: 1
+        productsCoeff:
+          type: number
+          format: float
+          nullable: false
+          description: Коэффициент наценки на продукты
+          example: 1.1
+        servicesCoeff:
+          type: number
+          format: float
+          nullable: false
+          description: Коэффициент наценки на работы
+          example: 1.1
+        productsQty:
+          type: integer
+          nullable: false
+          description: Количество товаров в смете
+          example: 10
+        servicesQty:
+          type: integer
+          nullable: false
+          description: Количество работ в смете
+          example: 10
+        totalPrice:
+          type: integer
+          nullable: false
+          description: Общая стоимость сметы
+          example: 100000
+        productsPrice:
+          type: integer
+          nullable: false
+          description: Стоимость товаров в смете
+          example: 50000
+        servicesPrice:
+          type: integer
+          nullable: false
+          description: Стоимость работ в смете
+          example: 50000
+        totalCoeffPrice:
+          type: integer
+          nullable: true
+          description: Общая стоимость сметы с учетом коэффициента наценки (не выводится для работников и клиентов)
+          example: 110000
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Attachment'
+        isExample:
+          type: boolean
+          nullable: false
+          description: Флаг тестовой сметы которая создается для нового пользователя
+          example: true
+        rows:
+          # TODO(everyone): по факту тут не массив, а объект объектов с динамическими ключами, а кодоген такое не кушает(
+          type: array
+          items:
+            $ref: '#/components/schemas/EstimateMobileRow'
+
+    Attachment:
+      type: object
+      description: Приложение
+      properties:
+        estimateAttachmentId:
+          type: integer
+          nullable: true
+          description: Идентификатор приложения
+          example: 1
+        created:
+          type: string
+          nullable: false
+          pattern: '^\d{2}\.\d{2}\.\d{4}$'
+          description: Дата создания
+          example: '28.04.2021'
+        modified:
+          type: string
+          nullable: false
+          pattern: '^\d{2}\.\d{2}\.\d{4}$'
+          description: Дата изменения
+          example: '28.04.2021'
+        text:
+          type: string
+          nullable: false
+          description: Текст приложения
+          example: 'Добавил документы для клиента.'
+        documents:
+          type: array
+          items:
+            $ref: '#/components/schemas/Document'
+
+    Document:
+      type: object
+      description: Документ в приложении
+      properties:
+        estimateAttachmentDocumentId:
+          type: integer
+          nullable: true
+          description: Идентификатор документа
+          example: 1
+        created:
+          type: string
+          nullable: false
+          pattern: '^\d{2}\.\d{2}\.\d{4}$'
+          description: Дата создания
+          example: '28.04.2021'
+        originalFilename:
+          type: string
+          maxLength: 250
+          nullable: false
+          description: Название файла
+          example: Документ.pdf
+        filesize:
+          type: integer
+          nullable: false
+          description: Размер файла в байтах
+          example: 16430
+        link:
+          type: string
+          nullable: false
+          description: Ссылка на файл
+          example: '/estimates/cd/cd8497b7a8ed68339c2267615609f06e.pdf'
+
+    EstimateMobileRow:
+      type: object
+      description: Информация по строкам/атрибутам сметы
+      properties:
+        type:
+          type: string
+          description:
+            - service
+            - product
+            - section
+          example: 'section'
+        estimateItemId:
+          type: integer
+          nullable: true
+          description: Идентификатор строки сметы (только для работ)
+          example: 1
+        productId:
+          type: string
+          maxLength: 250
+          nullable: true
+          description: UUID товара Петрович (только для товаров Петрович)
+          example: eb68fbcb-c792-2dd7-66ec-c9dd20561d95
+        serviceId:
+          type: integer
+          nullable: true
+          description: Идентификатор работы (только для работ)
+          example: 1
+        title:
+          type: string
+          maxLength: 250
+          nullable: false
+          description: Название раздела/товара/работы
+          example: Краска для потолка Dulux
+        price:
+          type: number
+          format: float
+          nullable: true
+          description: Цена (только для товаров и работ)
+          example: 1643.44
+        qty:
+          type: integer
+          nullable: true
+          description: Количество (только для товаров и работ)
+          example: 1643.44
+        unit:
+          type: string
+          maxLength: 250
+          nullable: true
+          description: Единица измерения (только для товаров и работ)
+          example: шт
+        actualPrice:
+          type: number
+          format: float
+          nullable: true
+          description: Актуальная цена (только для товаров и работ)
+          example: 1643.44
+        actualQty:
+          type: integer
+          nullable: true
+          description: Актуальное количество (только для товаров и работ)
+          example: 1643.44
+        isDone:
+          type: boolean
+          nullable: false
+          description: Флаг выполнения
+          example: 1643.44
+        isPaid:
+          type: boolean
+          nullable: false
+          description: Флаг оплаты
+          example: 1643.44
+        totalPrice:
+          type: number
+          format: float
+          nullable: false
+          description: Итоговая цена
+          example: 1643.44
+        totalProductsPrice:
+          type: number
+          format: float
+          nullable: true
+          description: Итоговая цена товаров (только для раздела)
+          example: 1643.44
+        productsBoughtPrice:
+          type: number
+          format: float
+          nullable: true
+          description: Цена купленных товаров (только для раздела)
+          example: 1643.44
+        productsRemainingPrice:
+          type: number
+          format: float
+          nullable: true
+          description: Цена некупленных товаров (только для раздела)
+          example: 1643.44
+        productsRemainingQty:
+          type: integer
+          nullable: true
+          description: Количество некупленных товаров (только для раздела)
+          example: 11
+        productsPetrovichRemainingQty:
+          type: integer
+          nullable: true
+          description: Количество некупленных товаров Петрович (только для раздела)
+          example: 11
+        productsPetrovichRemainingPrice:
+          type: number
+          format: float
+          nullable: true
+          description: Цена некупленных товаров Петрович (только для раздела)
+          example: 1643.44
+        totalServicesPrice:
+          type: number
+          format: float
+          nullable: true
+          description: Итоговая цена работ (только для раздела)
+          example: 1643.44
+        servicesDonePrice:
+          type: number
+          format: float
+          nullable: true
+          description: Итоговая цена выполненных работ (только для раздела)
+          example: 1643.44
+        servicesRemainingPrice:
+          type: number
+          format: float
+          nullable: true
+          description: Итоговая цена невыполненных работ (только для раздела)
+          example: 1643.44
+        totalCoeffPrice:
+          type: number
+          format: float
+          nullable: false
+          description: Итоговая цена с учетом коэффициента наценки
+          example: 1643.44
+        bought:
+          type: boolean
+          nullable: true
+          description: Флаг показывающий куплен ли товар (только для товаров)
+          example: true
+        exists:
+          type: boolean
+          nullable: true
+          description: Флаг наличия товара (только для товаров Петрович)
+          example: false
+        code:
+          type: integer
+          nullable: true
+          description: Артикул товара (только для товаров Петрович)
+          example: 158482
+        # TODO(everyone): dart не может в названия переменной с цифры, а картинка приходит в ключе 100x100
+        # закомментил чтобы не ломало остальной кодоген
+        #        img:
+        #          nullable: true
+        #          description: Ссылка на изображение (только для товаров Петрович)
+        #          $ref: '#/components/schemas/PetrovichImage'
+        rows:
+          # TODO(everyone): по факту тут не массив, а объект объектов с динамическими ключами, а кодоген такое не кушает(
+          type: array
+          items:
+            $ref: '#/components/schemas/EstimateMobileRow'
+
+#    PetrovichImage:
+#      type: object
+#      description: Данные по картинке товара Петрович
+#      properties:
+#        100x100:
+#          type: string
+#          nullable: false
+#          description: Ссылка на картинку товара Петрович
+#          example: '//cs.petrovich.ru/image/4801964/original-100x100-fit.jpg'
+
+    UpdatedEstimateMobile:
+      type: object
+      description: Обновление сметы в мобильном приложении
+      properties:
+        title:
+          type: string
+          description: Название сметы
+          maxLength: 250
+          example: 'Квартира на Шаболовке'
+        status:
+          type: integer
+          description: |
+            Статус:
+            0 - Новая
+            1 - На согласовании
+            2 - Согласовано
+            3 - В работе
+            4 - Реализована
+            5 - Приостановлена
+          example: 1
+        project:
+          type: integer
+          description: ID объекта, к которому относится смета (передавать при создании сметы к существующему объекту)
+          nullable: true
+        productsCoeff:
+          type: number
+          format: float
+          description: Коэффициент наценки на продукты
+          example: 1.1
+        servicesCoeff:
+          type: number
+          format: float
+          description: Коэффициент наценки на работы
+          example: 1.1
+        attachments:
+          type: array
+          description: Список приложений, добавленных в смету
+          nullable: true
+          items:
+            $ref: '#/components/schemas/NewAttachment'
+        rows:
+          type: array
+          description: |
+            * Массив строк сметы, в формате parentUUID -> UUID = {...}
+            * Для строк верхнего уровня ParentUUID = 00000000-0000-0000-0000-000000000000
+          # TODO(arefimenko): проверить схему ответа.
+          items:
+            $ref: "#/components/schemas/UpdatedEstimateRow"
+
+    UpdatedEstimate:
+      type: object
+      properties:
+        title:
+          type: string
+          maxLength: 250
+          nullable: false
+          description: Название блока/подкатегории
+          example: 'Кухня'
+        rows:
+          type: array
+          items:
+            $ref: '#/components/schemas/UpdatedEstimateRow'
+
+    UpdatedEstimateRow:
+      type: object
+      description: Информация по строкам/атрибутам сметы
+      properties:
+        title:
+          type: string
+          maxLength: 250
+          nullable: false
+          description: Название раздела/товара/работы
+          example: Краска для потолка Dulux
+        price:
+          type: number
+          format: float
+          nullable: true
+          description: Цена (только для товаров и работ)
+          example: 1643.44
+        qty:
+          type: integer
+          nullable: true
+          description: Количество (только для товаров и работ)
+          example: 1643.44
+        unit:
+          type: string
+          maxLength: 250
+          nullable: true
+          description: Единица измерения (только для товаров и работ)
+          example: шт
+        isDone:
+          type: boolean
+          nullable: false
+          description: Флаг выполнения
+          example: 1643.44
+        isPaid:
+          type: boolean
+          nullable: false
+          description: Флаг оплаты
+          example: 1643.44
