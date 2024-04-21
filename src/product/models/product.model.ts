@@ -1,46 +1,52 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { HydratedDocument } from "mongoose";
 
-export type AuthDocument = HydratedDocument<ProductModel>;
-@Schema()
+class ProductCharacteristics {
+  @Prop()
+  name: string;
+
+  @Prop()
+  value: string;
+}
+
+export type ProductDocument = HydratedDocument<ProductModel>;
+@Schema({ timestamps: true })
 export class ProductModel {
-  @Prop({ required: true })
+  @Prop()
   image: string;
 
-  @Prop({ required: true })
+  @Prop()
   title: string;
 
-  @Prop({ required: true })
+  @Prop()
   price: number;
 
-  @Prop({ required: true })
+  @Prop()
   oldPrice: number;
 
-  @Prop({ required: true })
+  @Prop()
   credit: number;
 
-  @Prop({ required: true })
+  @Prop()
   calculatedRating: number;
 
-  @Prop({ required: true })
+  @Prop()
   description: string;
 
-  @Prop({ required: true })
+  @Prop()
   advantages: string;
 
-  @Prop({ required: true })
+  @Prop()
   disAdvantages: string;
 
-  @Prop({ required: true })
+  @Prop({ type: () => [String] })
   categories: string[];
 
-  @Prop({ required: true })
+  @Prop({ type: () => [String] })
   tags: string[];
 
-  @Prop({ required: true })
-  characteristics: {
-    [key: string]: string;
-  };
+  @Prop({ type: () => [ProductCharacteristics] })
+  characteristics: ProductCharacteristics[];
 
   @Prop({ required: true })
   passwordHash: string;
