@@ -23,6 +23,6 @@ export class ReviewController {
 
   @Delete(':id')
   async deleteOne(@Param('id') id: string) {
-    id;
+    return this.reviewService.deleteReviewByID(id);
   }
 }

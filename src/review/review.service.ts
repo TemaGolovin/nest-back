@@ -17,4 +17,8 @@ export class ReviewService {
   getAllReviews() {
     return this.reviewModel.find();
   }
+
+  async deleteReviewByID(id: string) {
+    return this.reviewModel.deleteOne({ _id: id });
+  }
 }
