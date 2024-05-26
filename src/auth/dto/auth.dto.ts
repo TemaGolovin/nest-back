@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsString, Min } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
 
 export class AuthDto {
   @IsNotEmpty()
@@ -6,7 +6,7 @@ export class AuthDto {
   @IsString()
   email: string;
 
-  @Min(6, {
+  @MinLength(6, {
     message: "Пароль должен быть не менее 6 символов"
   })
   @IsString()

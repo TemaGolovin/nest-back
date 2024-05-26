@@ -12,7 +12,6 @@ export class AuthController {
   @Post('registration')
   async registration(@Body() dto: AuthDto) {
     const oldUser = await this.authService.findUser(dto.email);
-    console.log(oldUser);
     if (oldUser) {
       throw new BadRequestException(USER_ALREADY_EXIST)
     }
