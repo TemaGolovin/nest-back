@@ -56,7 +56,7 @@ export class AuthService {
       throw new UnauthorizedException(NOT_EXIST_EMAIL);
     }
 
-    const isCorrectPass = compare(password, user.passwordHash);
+    const isCorrectPass = await compare(password, user.passwordHash);
     if (!isCorrectPass) {
       throw new UnauthorizedException(PASSWORD_INCORRECT);
     }
