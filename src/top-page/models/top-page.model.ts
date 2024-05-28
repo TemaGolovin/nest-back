@@ -24,7 +24,7 @@ class HhModel {
 
 const HhSchema = SchemaFactory.createForClass(HhModel);
 
-@Schema()
+@Schema({ timestamps: true })
 class AdvantagesModel {
   @Prop()
   count: number;
@@ -45,23 +45,26 @@ const AdvantagesSchema = SchemaFactory.createForClass(AdvantagesModel);
 
 @Schema()
 export class TopPageModel {
-  @Prop({ required: true })
+  @Prop({ enum: TopLevelCategory })
   firstCategory: TopLevelCategory;
 
-  @Prop({ required: true })
+  @Prop()
   secondCategory: string;
 
-  @Prop({ required: true })
+  @Prop({ unique: true  })
+  alias: string;
+
+  @Prop()
   title: string;
 
-  @Prop({ required: true })
+  @Prop()
   category: string;
 
   @Prop({ type: HhSchema })
   hh?: HhModel;
 
   @Prop({ required: true, type: [AdvantagesSchema] })
-  advantages: AdvantagesModel;
+  advantages: AdvantagesModel[];
 
   @Prop()
   seoText: string;
@@ -69,7 +72,7 @@ export class TopPageModel {
   @Prop()
   tagsTitle: string;
 
-  @Prop()
+  @Prop({ type: [String]})
   tags: string[];
 }
 
