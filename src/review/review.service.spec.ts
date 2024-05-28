@@ -1,5 +1,4 @@
 import { ReviewService } from './review.service';
-import { ReviewModel } from './models';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getModelToken } from '@nestjs/mongoose';
 import { Types } from 'mongoose';
