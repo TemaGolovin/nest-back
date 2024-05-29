@@ -1,9 +1,9 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { HydratedDocument } from "mongoose";
+import { HydratedDocument } from 'mongoose';
 import { IsString, Min } from 'class-validator';
 
 export type AuthDocument = HydratedDocument<AuthModel>;
-@Schema()
+@Schema({ _id: true, timestamps: true })
 export class AuthModel {
   @IsString()
   @Prop({ required: true, unique: true })
