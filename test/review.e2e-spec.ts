@@ -18,6 +18,8 @@ const createTestReviewDto: ReviewModel = {
 describe("AppController (e2e)", () => {
   let app: INestApplication;
   let createdTestId: string;
+  let token;
+  let userId;
 
   beforeAll( async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -27,7 +29,17 @@ describe("AppController (e2e)", () => {
     app = moduleFixture.createNestApplication();
     await app.init();
 
+    request(app.getHttpServer()).post('/auth/registration').send({
+      email: "test1@mail.ru",
+      password: "123456"
+    }).then(({ body }: request.Response) => {
+      token = body.token;
+      userId = body._id;
+    })
+  })
 
+  afterAll(async () => {
+    await request(app.getHttpServer()).delete(`/auth/delete/${userId}`)
   })
 
   it("/review/create (POST)", () => {
@@ -54,6 +66,7 @@ describe("AppController (e2e)", () => {
   it("/review/:id (delete)", () => {
     return request(app.getHttpServer())
       .delete("/review/" + createdTestId)
+      .set("Authorization", "Bearer " + token)
       .expect(200)
   })
 
