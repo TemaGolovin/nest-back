@@ -2,6 +2,7 @@ import { Body, Controller, Delete, Get, Param, Post, UseGuards, UsePipes, Valida
 import { ReviewService } from './review.service';
 import { ReviewModel } from './models';
 import { JwtAuthGuard } from '../auth/guards/jwt.guard';
+import { IdValidationPipe } from '../pipes/id-validation.pipe';
 
 @Controller('review')
 export class ReviewController {
@@ -14,7 +15,7 @@ export class ReviewController {
   }
 
   @Get('byProduct/:productId')
-  async getAllByProduct(@Param('productId') productId: string) {
+  async getAllByProduct(@Param('productId', IdValidationPipe) productId: string) {
     return this.reviewService.getAllByProductId(productId);
   }
 
@@ -25,7 +26,7 @@ export class ReviewController {
 
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
-  async deleteOne(@Param('id') id: string) {
+  async deleteOne(@Param('id', IdValidationPipe) id: string) {
     return this.reviewService.deleteReviewByID(id);
   }
 }
